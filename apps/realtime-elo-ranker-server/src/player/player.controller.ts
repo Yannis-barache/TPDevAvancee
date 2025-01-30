@@ -1,8 +1,7 @@
-import {Controller, Get, Post, Param, Delete, Body} from '@nestjs/common';
+import { Controller, Get, Post, Param, Delete, Body } from '@nestjs/common';
 import { PlayerService } from './player.service';
 import { Player } from './entities/player.entity';
 import { CreatePlayerDto } from './dto/create-player.dto';
-import {PlayerModule} from "./player.module";
 
 @Controller('api/player')
 export class PlayerController {
@@ -20,6 +19,7 @@ export class PlayerController {
 
   @Post()
   create(@Body() player: CreatePlayerDto): Promise<Player> {
+    console.log('create player', player);
     return this.playerService.createPlayer(player);
   }
 

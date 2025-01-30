@@ -3,10 +3,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Player } from './entities/player.entity';
 import { CreatePlayerDto } from './dto/create-player.dto';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class PlayerService {
   constructor(
+    private readonly eventEmitter: EventEmitter2,
     @InjectRepository(Player)
     private readonly playerRepository: Repository<Player>,
   ) {}
@@ -20,6 +22,7 @@ export class PlayerService {
   }
 
   async createPlayer(player: CreatePlayerDto): Promise<Player> {
+    console.log('create dans le service', player);
     if (player === null || player === undefined) {
       throw new Error('User is null or undefined');
     }
@@ -30,7 +33,14 @@ export class PlayerService {
       rank = Math.round(rank);
       player.rank = rank;
     }
-    return this.playerRepository.save(player);
+    const newPlayer = await this.playerRepository.save(player);
+    this.eventEmitter.emit('player.created', {
+      player: {
+        id: newPlayer.id,
+        rank: newPlayer.rank,
+      },
+    });
+    return newPlayer;
   }
 
   async remove(id: string): Promise<void> {
