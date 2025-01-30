@@ -1,7 +1,8 @@
 import {Body, Controller, Get, Param, Post} from '@nestjs/common';
 import {MatchService} from './match.service';
-import {Match} from '../entities/match.entity';
+import {Match} from './entities/match.entity';
 import {PlayerService} from '../player/player.service';
+import {CreateMatchDto} from "./dto/create-match.dto";
 
 @Controller('api/match')
 export class MatchController {
@@ -21,7 +22,7 @@ export class MatchController {
   }
 
   @Post()
-  async create(@Body() match: Match): Promise<any> {
+  async create(@Body() match: CreateMatchDto): Promise<any> {
     try {
       return await this.matchService.createMatch(match);
     } catch (e) {

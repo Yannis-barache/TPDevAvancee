@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Player } from '../entities/player.entity';
+import { Player } from '../player/entities/player.entity';
 import { PlayerService } from '../player/player.service';
 
 @Injectable()
