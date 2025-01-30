@@ -4,6 +4,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PlayerModule } from './player/player.module';
 import { PlayerController } from './player/player.controller';
+import { MatchModule } from './match/match.module';
+import { RankingModule } from './ranking/ranking.module';
 
 @Module({
   imports: [
@@ -14,6 +16,8 @@ import { PlayerController } from './player/player.controller';
       synchronize: true,
     }),
     PlayerModule,
+    MatchModule,
+    RankingModule,
   ],
   controllers: [AppController, PlayerController],
   providers: [AppService],
