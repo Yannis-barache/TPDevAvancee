@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
 import { PlayerService } from './player.service';
 import { Player } from '../entities/player.entity';
 
-@Controller('Player')
+@Controller('api/player')
 export class PlayerController {
   constructor(private readonly playerService: PlayerService) {}
 
@@ -13,16 +13,16 @@ export class PlayerController {
 
   @Get(':id')
   findOne(@Param('id') id: string): Promise<Player | null> {
-    return this.playerService.findOne(+id);
+    return this.playerService.findOne(id);
   }
 
   @Post()
   create(@Body() user: Player): Promise<Player> {
-    return this.playerService.create(user);
+    return this.playerService.createPlayer(user);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string): Promise<void> {
-    return this.playerService.remove(+id);
+    return this.playerService.remove(id);
   }
 }
