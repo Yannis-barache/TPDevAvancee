@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Player } from '../entities/player.entity';
+import { Player } from './entities/player.entity';
+import { CreatePlayerDto } from './dto/create-player.dto';
 
 @Injectable()
 export class PlayerService {
@@ -18,7 +19,7 @@ export class PlayerService {
     return this.playerRepository.findOneBy({ id });
   }
 
-  async createPlayer(player: Player): Promise<Player> {
+  async createPlayer(player: CreatePlayerDto): Promise<Player> {
     if (player === null || player === undefined) {
       throw new Error('User is null or undefined');
     }

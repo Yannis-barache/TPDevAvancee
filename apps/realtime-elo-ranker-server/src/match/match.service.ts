@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Match } from '../entities/match.entity';
-import {Player} from "../entities/player.entity";
+import { Match } from './entities/match.entity';
+import {Player} from "../player/entities/player.entity";
 import {PlayerService} from "../player/player.service";
+import {CreateMatchDto} from "./dto/create-match.dto";
 
 @Injectable()
 export class MatchService {
@@ -17,7 +18,7 @@ export class MatchService {
     return this.matchRepository.find();
   }
 
-  async createMatch(match: Match): Promise<Match> {
+  async createMatch(match: CreateMatchDto): Promise<Match> {
     // Verif de l'existance des joueurs
     const winner = await this.playerService.findOne(match.winner);
     const loser = await this.playerService.findOne(match.loser);
