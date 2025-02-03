@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { Player } from '../player/entities/player.entity';
-import { PlayerService } from '../player/player.service';
 
 @Injectable()
 export class RankingService {
-  constructor(private readonly playerService: PlayerService) {}
+  constructor() {}
 
   async getRanking(): Promise<Player[]> {
-    const players = await this.playerService.findAll();
+    const response = await fetch('http://localhost:3000/api/player');
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const players: Player[] = await response.json();
     return players.sort((a, b) => a.rank - b.rank);
   }
 }

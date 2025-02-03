@@ -15,7 +15,7 @@ export class MatchService {
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
-  async findAll(): Promise<Match[]> {
+  findAll(): Promise<Match[]> {
     return this.matchRepository.find();
   }
 
@@ -26,11 +26,49 @@ export class MatchService {
     if (winner === null || loser === null) {
       throw new Error('Winner or loser not found');
     }
-    this.eventEmitter.emit('match.result', { winner, loser });
+    await this.updateRank(match.winner, match.loser);
+    this.eventEmitter.emit('match.result', {
+      player: {
+        id: winner.id,
+        rank: winner.rank,
+      },
+    });
+    this.eventEmitter.emit('match.result', {
+      player: {
+        id: loser.id,
+        rank: loser.rank,
+      },
+    });
     return this.matchRepository.save(match);
   }
 
   async findOne(id: number): Promise<Match | null> {
     return this.matchRepository.findOneBy({ id });
+  }
+
+  async calculateElo(winner: string, loser: string) {
+    const winnerData = await this.playerService.findOne(winner);
+    const loserData = await this.playerService.findOne(loser);
+
+    if (!winnerData || !loserData) {
+      throw new Error('Player not found');
+    }
+    return 1 / (1 + Math.pow(10, (loserData.rank - winnerData.rank) / 400));
+  }
+
+  async updateRank(winner: string, loser: string) {
+    const k = 32;
+    const winnerData = await this.playerService.findOne(winner);
+    const loserData = await this.playerService.findOne(loser);
+
+    if (!winnerData || !loserData) {
+      throw new Error('Player not found');
+    }
+    const expectedScore = await this.calculateElo(winner, loser);
+    const winnerNewRank = winnerData.rank + k * (1 - expectedScore);
+    const loserNewRank = loserData.rank + k * (0 - expectedScore);
+
+    await this.playerService.updateRank(winner, winnerNewRank);
+    await this.playerService.updateRank(loser, loserNewRank);
   }
 }

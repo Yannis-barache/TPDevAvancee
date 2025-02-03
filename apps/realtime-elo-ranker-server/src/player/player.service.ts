@@ -46,4 +46,8 @@ export class PlayerService {
   async remove(id: string): Promise<void> {
     await this.playerRepository.delete(id);
   }
+
+  async updateRank(winner: string, winnerNewRank: number) {
+    await this.playerRepository.update(winner, { rank: winnerNewRank });
+  }
 }

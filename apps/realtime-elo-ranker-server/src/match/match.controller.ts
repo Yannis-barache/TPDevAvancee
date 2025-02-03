@@ -1,15 +1,11 @@
-import {Body, Controller, Get, Param, Post} from '@nestjs/common';
-import {MatchService} from './match.service';
-import {Match} from './entities/match.entity';
-import {PlayerService} from '../player/player.service';
-import {CreateMatchDto} from "./dto/create-match.dto";
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { MatchService } from './match.service';
+import { Match } from './entities/match.entity';
+import { CreateMatchDto } from './dto/create-match.dto';
 
 @Controller('api/match')
 export class MatchController {
-  constructor(
-    private readonly matchService: MatchService,
-    private readonly playerService: PlayerService,
-  ) {}
+  constructor(private readonly matchService: MatchService) {}
 
   @Get()
   findAll(): Promise<Match[]> {
