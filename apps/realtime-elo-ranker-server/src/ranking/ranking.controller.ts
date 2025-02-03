@@ -32,6 +32,7 @@ export class RankingController {
 
     const matchResult = fromEvent(this.eventEmitter, 'match.result').pipe(
       map((event: { player: Player }) => {
+        console.log('ON a bien recu la MAJ pour ' + event.player.id);
         return <MessageEvent>{
           data: {
             type: 'RankingUpdate',
