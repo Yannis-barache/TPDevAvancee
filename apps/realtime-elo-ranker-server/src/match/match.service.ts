@@ -27,18 +27,6 @@ export class MatchService {
       throw new Error('Winner or loser not found');
     }
     await this.updateRank(match.winner, match.loser);
-    this.eventEmitter.emit('match.result', {
-      player: {
-        id: winner.id,
-        rank: winner.rank,
-      },
-    });
-    this.eventEmitter.emit('match.result', {
-      player: {
-        id: loser.id,
-        rank: loser.rank,
-      },
-    });
     return this.matchRepository.save(match);
   }
 
@@ -65,10 +53,23 @@ export class MatchService {
       throw new Error('Player not found');
     }
     const expectedScore = await this.calculateElo(winner, loser);
-    const winnerNewRank = winnerData.rank + k * (1 - expectedScore);
-    const loserNewRank = loserData.rank + k * (0 - expectedScore);
+    const winnerNewRank = Math.round(winnerData.rank + k * (1 - expectedScore));
+    const loserNewRank = Math.round(loserData.rank + k * (0 - expectedScore));
 
     await this.playerService.updateRank(winner, winnerNewRank);
     await this.playerService.updateRank(loser, loserNewRank);
+
+    this.eventEmitter.emit('match.result', {
+      player: {
+        id: winnerData.id,
+        rank: winnerNewRank,
+      },
+    });
+    this.eventEmitter.emit('match.result', {
+      player: {
+        id: loserData.id,
+        rank: loserNewRank,
+      },
+    });
   }
 }

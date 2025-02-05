@@ -20,7 +20,6 @@ export class RankingController {
   sse(): Observable<MessageEvent> {
     const playerCreated = fromEvent(this.eventEmitter, 'player.created').pipe(
       map((event: { player: Player }) => {
-        console.log('ON a bien recu la MAJ');
         return <MessageEvent>{
           data: {
             type: 'RankingUpdate',
