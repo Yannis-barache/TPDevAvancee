@@ -26,7 +26,7 @@ export class MatchService {
     if (winner === null || loser === null) {
       throw new Error('Winner or loser not found');
     }
-    await this.updateRank(match.winner, match.loser);
+    await this.updateRank(match.winner, match.loser, match.draw);
     return this.matchRepository.save(match);
   }
 
@@ -44,7 +44,7 @@ export class MatchService {
     return 1 / (1 + Math.pow(10, (loserData.rank - winnerData.rank) / 400));
   }
 
-  async updateRank(winner: string, loser: string) {
+  async updateRank(winner: string, loser: string, draw: boolean) {
     const k = 32;
     const winnerData = await this.playerService.findOne(winner);
     const loserData = await this.playerService.findOne(loser);
@@ -53,8 +53,16 @@ export class MatchService {
       throw new Error('Player not found');
     }
     const expectedScore = await this.calculateElo(winner, loser);
-    const winnerNewRank = Math.round(winnerData.rank + k * (1 - expectedScore));
-    const loserNewRank = Math.round(loserData.rank + k * (0 - expectedScore));
+    let winnerNewRank;
+    let loserNewRank;
+
+    if (draw) {
+      winnerNewRank = Math.round(winnerData.rank + k * (0.5 - expectedScore));
+      loserNewRank = Math.round(loserData.rank + k * (0.5 - expectedScore));
+    } else {
+      winnerNewRank = Math.round(winnerData.rank + k * (1 - expectedScore));
+      loserNewRank = Math.round(loserData.rank + k * (0 - expectedScore));
+    }
 
     await this.playerService.updateRank(winner, winnerNewRank);
     await this.playerService.updateRank(loser, loserNewRank);
