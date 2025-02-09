@@ -1,0 +1,83 @@
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Match } from './entities/match.entity';
+import { PlayerService } from '../player/player.service';
+import { CreateMatchDto } from './dto/create-match.dto';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+
+@Injectable()
+export class MatchService {
+  constructor(
+    @InjectRepository(Match)
+    private readonly matchRepository: Repository<Match>,
+    private readonly playerService: PlayerService,
+    private readonly eventEmitter: EventEmitter2,
+  ) {}
+
+  findAll(): Promise<Match[]> {
+    return this.matchRepository.find();
+  }
+
+  async createMatch(match: CreateMatchDto): Promise<Match> {
+    // Verif de l'existance des joueurs
+    const winner = await this.playerService.findOne(match.winner);
+    const loser = await this.playerService.findOne(match.loser);
+    if (winner === null || loser === null) {
+      throw new Error('Winner or loser not found');
+    }
+    await this.updateRank(match.winner, match.loser, match.draw);
+    return this.matchRepository.save(match);
+  }
+
+  async findOne(id: number): Promise<Match | null> {
+    return this.matchRepository.findOneBy({ id });
+  }
+
+  async calculateElo(winner: string, loser: string) {
+    const winnerData = await this.playerService.findOne(winner);
+    const loserData = await this.playerService.findOne(loser);
+
+    if (!winnerData || !loserData) {
+      throw new Error('Player not found');
+    }
+    return 1 / (1 + Math.pow(10, (loserData.rank - winnerData.rank) / 400));
+  }
+
+  async updateRank(winner: string, loser: string, draw: boolean) {
+    const k = 32;
+    const winnerData = await this.playerService.findOne(winner);
+    const loserData = await this.playerService.findOne(loser);
+
+    if (!winnerData || !loserData) {
+      throw new Error('Player not found');
+    }
+    const expectedScore = await this.calculateElo(winner, loser);
+    let winnerNewRank;
+    let loserNewRank;
+
+    if (draw) {
+      winnerNewRank = Math.round(winnerData.rank + k * (0.5 - expectedScore));
+      loserNewRank = Math.round(loserData.rank + k * (0.5 - expectedScore));
+    } else {
+      winnerNewRank = Math.round(winnerData.rank + k * (1 - expectedScore));
+      loserNewRank = Math.round(loserData.rank + k * (0 - expectedScore));
+    }
+
+    await this.playerService.updateRank(winner, winnerNewRank);
+    await this.playerService.updateRank(loser, loserNewRank);
+
+    this.eventEmitter.emit('match.result', {
+      player: {
+        id: winnerData.id,
+        rank: winnerNewRank,
+      },
+    });
+    this.eventEmitter.emit('match.result', {
+      player: {
+        id: loserData.id,
+        rank: loserNewRank,
+      },
+    });
+  }
+}
