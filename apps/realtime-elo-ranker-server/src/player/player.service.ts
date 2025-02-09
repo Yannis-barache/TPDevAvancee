@@ -29,12 +29,17 @@ export class PlayerService {
     if (player.rank === null || player.rank === undefined) {
       // Fais la moyenne des rank de tous les joueurs
       const players = await this.findAll();
-      let rank = 0;
-      players.forEach((p) => {
-        rank += p.rank;
-      });
-      rank = Math.round(rank) / players.length;
-      player.rank = rank;
+      if (players.length === 0) {
+        player.rank = 1000;
+      }
+      else {
+        let rank = 0;
+        players.forEach((p) => {
+          rank += p.rank;
+        });
+        rank = Math.round(rank) / players.length;
+        player.rank = rank;
+      }
     }
     const newPlayer = await this.playerRepository.save(player);
     this.eventEmitter.emit('player.created', {
