@@ -1,5 +1,12 @@
 # Realtime Elo Ranker
 
+## Membres
+
+[![Yannis Barache](https://img.shields.io/badge/Yannis%20Barache-000000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Yannis-barache)
+
+
+## [Lien vers le git](https://github.com/Yannis-barache/TPDevAvancee/tree/main)
+
 Realtime Elo Ranker est une application web permettant de simuler des matchs entre des joueurs et de calculer et afficher leur classement Elo en temps réel.
 
 ## Conteneurs Métiers
